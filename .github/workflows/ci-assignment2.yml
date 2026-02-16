@@ -6,46 +6,12 @@ on:
   pull_request:
     branches: ["main"]
 
-<<<<<<< HEAD
-# Concurrency: only allow one workflow per branch, cancel older runs
-=======
->>>>>>> bc36ffd (added multi ci-cd)
 concurrency:
   group: ${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-<<<<<<< HEAD
-  # 1️⃣ Build Stage
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run build
-        run: npm run build || echo "No build script defined"
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build
-          path: |
-            ./dist/
-            ./build/
-
-  # 2️⃣ Test Stage
-=======
   # 1️⃣ Lint + Test
->>>>>>> bc36ffd (added multi ci-cd)
   test:
     runs-on: ubuntu-latest
     steps:
