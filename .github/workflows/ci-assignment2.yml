@@ -2,9 +2,11 @@ name: Multi-Stage CI/CD Pipeline
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
   pull_request:
-    branches: ["main"]
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.ref }}
@@ -28,64 +30,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: ./test-results/ || echo "No test-results folder"
-
-  # 2️⃣ Security Scan
-  scan:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-      - run: npm audit || echo "Audit finished"
-
-  # 3️⃣ Package
-  package:
-    runs-on: ubuntu-latest
-    needs: scan
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-      - run: npm install
-      - run: |
-          mkdir -p dist-package
-          cp -r package.json dist-package/
-          cp -r src dist-package/
-      - uses: actions/upload-artifact@v4
-        with:
-          name: package
-          path: dist-package/
-
-  # 4️⃣ Release
-  release:
-    runs-on: ubuntu-latest
-    needs: package
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-      - uses: actions/download-artifact@v4
-        with:
-          name: package
-      # Automatically create a new tag for release
-      - name: Create release tag
-        id: tag
-        run: |
-          TAG=v1.0.${{ github.run_number }}
-          git tag $TAG
-          git push origin $TAG
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v1.0.${{ github.run_number }}
-          files: "dist-package/**"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          path: ./test-res
