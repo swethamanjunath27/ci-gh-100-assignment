@@ -31,11 +31,6 @@ jobs:
         with:
           node-version: 18
 
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build
-
       - run: npm install
 
       - name: Lint
