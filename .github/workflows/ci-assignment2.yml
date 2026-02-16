@@ -9,7 +9,7 @@ on:
 # Concurrency: only allow one workflow per branch, cancel older runs
 concurrency:
   group: ${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   # 1️⃣ Build Stage
