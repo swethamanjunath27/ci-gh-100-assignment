@@ -1,14 +1,46 @@
-name: CI
+name: CI Pipeline
 
+# Trigger on pull requests and pushes to main or any branch
 on:
+  push:
+    branches: 
+      - '**'   # all branches
   pull_request:
-    branches: [ main ]
+    branches:
+      - '**'
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Run a test
-        run: echo "Everything works!"
+      # Step 1: Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js (example)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Lint the code
+      - name: Lint code
+        run: npm run lint
+
+      # Step 5: Run tests
+      - name: Run tests
+        run: npm test
+
+      # Step 6: Save test results as artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            ./test-results/
+            ./coverage/
