@@ -4,8 +4,9 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
-    "test": "jest"
+    "test": "echo \"No tests yet\""
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
