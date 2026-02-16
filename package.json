@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "echo 'No build step required'",
-    "lint": "eslint .",
+    "lint": "eslint ./src",
     "test": "echo \"No tests yet\""
   },
   "type": "module",

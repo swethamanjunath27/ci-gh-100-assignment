@@ -6,12 +6,16 @@ on:
   pull_request:
     branches: ["main"]
 
+<<<<<<< HEAD
 # Concurrency: only allow one workflow per branch, cancel older runs
+=======
+>>>>>>> bc36ffd (added multi ci-cd)
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+<<<<<<< HEAD
   # 1️⃣ Build Stage
   build:
     runs-on: ubuntu-latest
@@ -39,91 +43,69 @@ jobs:
             ./build/
 
   # 2️⃣ Test Stage
+=======
+  # 1️⃣ Lint + Test
+>>>>>>> bc36ffd (added multi ci-cd)
   test:
     runs-on: ubuntu-latest
-    needs: build
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build
-
+      - run: npm install
       - name: Lint
         run: npm run lint
-
       - name: Run tests
-        run: npm test
-
-      - name: Upload test results
+        run: npm run test
+      - name: Upload test results (optional)
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: ./test-results/ || echo "No test results folder"
+          path: ./test-results/ || echo "No test-results folder"
 
-  # 3️⃣ Security Scan Stage
+  # 2️⃣ Security Scan
   scan:
     runs-on: ubuntu-latest
     needs: test
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
+      - run: npm audit || echo "Audit finished"
 
-      - name: Security Scan
-        run: |
-          echo "Scanning for vulnerabilities..."
-          npm audit || echo "Audit finished"
-
-  # 4️⃣ Package Stage
+  # 3️⃣ Package
   package:
     runs-on: ubuntu-latest
     needs: scan
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Package application
-        run: |
+      - run: npm install
+      - run: |
           mkdir -p dist-package
           cp -r package.json dist-package/
-          cp -r src dist-package/ || echo "No src folder found"
-
-      - name: Upload package artifact
-        uses: actions/upload-artifact@v4
+          cp -r src dist-package/
+      - uses: actions/upload-artifact@v4
         with:
           name: package
           path: dist-package/
 
-  # 5️⃣ Release Stage
+  # 4️⃣ Release
   release:
     runs-on: ubuntu-latest
     needs: package
     steps:
       - uses: actions/checkout@v4
-
-      - name: Download package artifact
-        uses: actions/download-artifact@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - uses: actions/download-artifact@v4
         with:
           name: package
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
