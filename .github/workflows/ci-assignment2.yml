@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: ["main"]
 
-# Prevent multiple runs for same branch/PR
+# Concurrency: only allow one workflow per branch, cancel older runs
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
@@ -15,19 +15,14 @@ jobs:
   # 1️⃣ Build Stage
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18]
-    outputs:
-      node-version: ${{ matrix.node-version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
 
       - name: Install dependencies
         run: npm install
@@ -35,10 +30,10 @@ jobs:
       - name: Run build
         run: npm run build || echo "No build script defined"
 
-      - name: Upload build artifacts
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build-${{ matrix.node-version }}
+          name: build
           path: |
             ./dist/
             ./build/
@@ -54,12 +49,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ needs.build.outputs['node-version'] }}
+          node-version: 18
 
-      - name: Download build artifacts
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: build-${{ needs.build.outputs['node-version'] }}
+          name: build
 
       - name: Lint
         run: npm run lint
@@ -67,13 +62,13 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Upload test artifacts
+      - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: ./test-results/
+          path: ./test-results/ || echo "No test results folder"
 
-  # 3️⃣ Scan Stage (example: security or code scan)
+  # 3️⃣ Security Scan Stage
   scan:
     runs-on: ubuntu-latest
     needs: test
@@ -83,7 +78,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
 
       - name: Security Scan
         run: |
@@ -100,7 +95,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
 
       - name: Install dependencies
         run: npm install
@@ -135,4 +130,3 @@ jobs:
           files: "dist-package/**"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
