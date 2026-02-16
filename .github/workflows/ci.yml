@@ -8,21 +8,29 @@ on:
   pull_request:
     branches:
       - '**'
-
+# Prevent multiple runs on the same branch/PR
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+  
 jobs:
   build-and-test:
+    # Run a matrix for multiple Node versions
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        node-version: [18, 20]
     steps:
       # Step 1: Checkout the code
       - name: Checkout repository
         uses: actions/checkout@v4
 
       # Step 2: Set up Node.js (example)
-      - name: Setup Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
+
 
       # Step 3: Install dependencies
       - name: Install dependencies
